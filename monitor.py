@@ -16,15 +16,15 @@ GPIO.setmode(GPIO.BOARD)
 # Setup GPIO PINs
 GPIO.setup(off_hook, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 37 to input and pull up to 3.3V
 
-# Listen for the phone to be picked up
-GPIO.add_event_detect(off_hook, GPIO.BOTH, off_hook_callback, bouncetime=100)
-
 def off_hook_callback(channel):
     if GPIO.input(off_hook) == 0:
         print(channel, "Phone is off the hook")
     else:
         print(channel, "Phone is on the hook")
 
+# Listen for the phone to be picked up
+GPIO.add_event_detect(off_hook, GPIO.BOTH, off_hook_callback, bouncetime=100)
+
+
 while True:
     time.sleep(1)
-    
