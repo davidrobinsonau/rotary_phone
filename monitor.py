@@ -2,7 +2,7 @@
 
 # Called from .bashrc file
 
-import RPi.GPIO as GPIO  # Import the Raspberry Pi GPIO Library
+#import RPi.GPIO as GPIO  # Import the Raspberry Pi GPIO Library
 
 import os
 import time
@@ -46,27 +46,37 @@ pulse_count = 0
 
 #Raspberry Pi PINs used
 # RuntimeError: Failed to add edge detection when using GPIO 26 on Raspberry Pi 4
-off_hook = 37 # GPIO 26 PIN 37
+off_hook = 26 # GPIO 26 PIN 37
 #off_hook = 35 # GPIO 19 PIN 35
 dial_pulse = 16 # GPIO 16 PIN 36 PIGIO uses the GPIO numbering
 
 # Setup GPIO Board settings
-GPIO.setwarnings(False)
+# GPIO.setwarnings(False)
 # Set the Mode to use the PIN numberings (NOT GPIO numberings)
-GPIO.setmode(GPIO.BOARD) # https://raspberrypi.stackexchange.com/questions/12966/what-is-the-difference-between-board-and-bcm-for-gpio-pin-numbering
+#GPIO.setmode(GPIO.BOARD) # https://raspberrypi.stackexchange.com/questions/12966/what-is-the-difference-between-board-and-bcm-for-gpio-pin-numbering
 
 
 # Setup GPIO PINs
-GPIO.setup(off_hook, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 37 to input and pull up to 3.3V
-GPIO.setup(dial_pulse, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 36 to input and pull up to 3.3V
+#GPIO.setup(off_hook, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 37 to input and pull up to 3.3V
+#GPIO.setup(dial_pulse, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 36 to input and pull up to 3.3V
 
-def off_hook_callback(channel):
+def off_hook_callback(GPIO_Channel, event, tick):
     global phone_off_hook
-    if GPIO.input(off_hook) == 1:
-        print(channel, "Event Phone is on the hook. Stopping Audio.")
+    global pulse_count
+    # Check if the phone is off the hook or on the hook
+    if event == 0:
+        #  = change to low (a falling edge) which means the phone is off the hook and in someones hand.
+        print(GPIO_Channel, "Phone Handset has been picked up")
+        phone_off_hook = True
+        start_phone_workflow()
+    if event == 0:
+        # 1 = change to high (a rising edge) which means the phone is on the hook ie placed back on the cradle
+        print(GPIO_Channel, "Phone Handset has been put down")
         phone_off_hook = False
         ring_ring_audio.stop()
         off_hook_audio.stop()
+        # Reset pulse count to zero
+        pulse_count = 0
   
 def dial_monitor(GPIO_Channel, event, tick):
     '''
@@ -86,42 +96,40 @@ def dial_monitor(GPIO_Channel, event, tick):
 
 
 # Listen for the phone to be picked up
-GPIO.add_event_detect(off_hook, GPIO.FALLING, off_hook_callback, bouncetime=300)
+#GPIO.add_event_detect(off_hook, GPIO.FALLING, off_hook_callback, bouncetime=300)
 #GPIO.add_event_detect(dial_pulse, GPIO.FALLING, dial_monitor, bouncetime=300) # This is disabled as the pulse is too fast for the GPIO library to detect
+
+pi.set_mode(off_hook, pigpio.INPUT)
+pi.set_pull_up_down(off_hook, pigpio.PUD_UP) # Set the pull up resistor on the off_hook PIN
+
 pi.set_mode(dial_pulse, pigpio.INPUT)
 pi.set_pull_up_down(dial_pulse, pigpio.PUD_UP) # Set the pull up resistor on the dial_pulse PIN
-cb_counter_handler = pi.callback(dial_pulse, pigpio.EITHER_EDGE, dial_monitor) # Set the callback for the dial_pulse PIN
+
+# 
+cb_counter_handler = pi.callback(dial_pulse, pigpio.FALLING_EDGE, dial_monitor) # Set the callback for the dial_pulse PIN
+cb_off_hook_handler = pi.callback(off_hook, pigpio.EITHER_EDGE, off_hook_callback) # Set the callback for the off_hook PIN
 
 def start_phone_workflow():
     # Play the Dialtone sounds
-    if GPIO.input(off_hook) == 0: # Check if the phone is still off the hook
-        off_hook_audio.play()
+    off_hook_audio.play()
     # Wait for the user to dial a number
     time.sleep(2)
     off_hook_audio.stop() # For testing
     # Play the Ring Ring if phone is still off the hook
-    if GPIO.input(off_hook) == 0:
+    if phone_off_hook == True:
         ring_ring_audio.play()
     # Once this is done, then we play the dialed number audio
     # Monitor for Audio to finish
     while pygame.mixer.get_busy():
-        time.sleep(1)
+        time.sleep(0.5)
     # Once the audio is done, we hang up the phone
     
 
 print("Monitoring phone status...")
 while True:
-    time.sleep(0.5)
+    time.sleep(1)
     # As the off_hook_callback function isn't reliable due to the contacts on the phone being old, we need to check the status of the phone
-    if GPIO.input(off_hook) == 0:
-        print("Phone is off the hook")
-        phone_off_hook = True
-        start_phone_workflow()
-    else:
-        print("Phone is on the hook")
-        off_hook_audio.stop()
-        ring_ring_audio.stop()
-        phone_off_hook = False
+    print("State: Off-Hook: ",pi.read(off_hook), " Dial Pulse: ", pi.read(dial_pulse))
 
 
 
