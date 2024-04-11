@@ -37,6 +37,7 @@ phone_off_hook = False
 # RuntimeError: Failed to add edge detection when using GPIO 26 on Raspberry Pi 4
 off_hook = 37 # GPIO 26 PIN 37
 #off_hook = 35 # GPIO 19 PIN 35
+dial_pulse = 36 # GPIO 16 PIN 36
 
 # Setup GPIO Board settings
 GPIO.setwarnings(False)
@@ -46,6 +47,7 @@ GPIO.setmode(GPIO.BOARD) # https://raspberrypi.stackexchange.com/questions/12966
 
 # Setup GPIO PINs
 GPIO.setup(off_hook, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 37 to input and pull up to 3.3V
+GPIO.setup(dial_pulse, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 36 to input and pull up to 3.3V
 
 def off_hook_callback(channel):
     if GPIO.input(off_hook) == 1:
@@ -54,10 +56,13 @@ def off_hook_callback(channel):
         ring_ring_audio.stop()
         off_hook_audio.stop()
   
-        
+def dial_monitor(channel):
+    print(channel, "Dial Event Detected")
+
 
 # Listen for the phone to be picked up
-GPIO.add_event_detect(off_hook, GPIO.BOTH, off_hook_callback, bouncetime=300)
+GPIO.add_event_detect(off_hook, GPIO.FALLING, off_hook_callback, bouncetime=300)
+GPIO.add_event_detect(dial_pulse, GPIO.FALLING, dial_monitor, bouncetime=300)
 
 def start_phone_workflow():
     # Play the Dialtone sounds
