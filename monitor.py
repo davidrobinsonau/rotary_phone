@@ -37,9 +37,10 @@ GPIO.setup(off_hook, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 37 to input an
 def off_hook_callback(channel):
     if GPIO.input(off_hook) == 1:
         print(channel, "Event Phone is on the hook. Stopping Audio.")
+        phone_off_hook = False
         off_hook_audio.stop()
         ring_ring_audio.stop()
-        phone_off_hook = False
+        
 
 # Listen for the phone to be picked up
 GPIO.add_event_detect(off_hook, GPIO.BOTH, off_hook_callback, bouncetime=300)
