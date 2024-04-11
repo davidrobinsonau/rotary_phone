@@ -94,11 +94,10 @@ pi.set_pull_up_down(off_hook, pigpio.PUD_UP) # Set the pull up resistor on the o
 
 pi.set_mode(dial_pulse, pigpio.INPUT)
 pi.set_pull_up_down(dial_pulse, pigpio.PUD_UP) # Set the pull up resistor on the dial_pulse PIN
-
 # 
-cb_counter_handler = pi.callback(dial_pulse, pigpio.EITHER_EDGE, dial_monitor) # Set the callback for the dial_pulse PIN
+cb_counter_handler = pi.callback(dial_pulse, pigpio.RISING_EDGE, dial_monitor) # Set the callback for the dial_pulse PIN.
 # The off hook callback is unreliable due to the old contacts on the phone. Only checking pick up the pho. Volts to 0.
-cb_off_hook_handler = pi.callback(off_hook, pigpio.FALLING_EDGE, off_hook_callback) # Set the callback for the off_hook PIN
+cb_off_hook_handler = pi.callback(off_hook, pigpio.FALLING_EDGE, off_hook_callback) # Set the callback for the off_hook PIN.
 
 def start_phone_workflow():
     # Play the Dialtone sounds
@@ -108,6 +107,8 @@ def start_phone_workflow():
         # We play the dialtone until a number is dialed or handset put back
         if pi.read(off_hook) == PI_HIGH:
             print("Handset has been put down")
+            phone_off_hook = False
+            pulse_count = 0
             off_hook_audio.stop()
             return
         time.sleep(0.3)
@@ -125,6 +126,8 @@ def start_phone_workflow():
         # Check is handset has been put down
         if pi.read(off_hook) == PI_HIGH:
             print("Handset has been put down")
+            phone_off_hook = False
+            pulse_count = 0
             ring_ring_audio.stop()
             off_hook_audio.stop()
             return
