@@ -61,12 +61,13 @@ GPIO.add_event_detect(off_hook, GPIO.BOTH, off_hook_callback, bouncetime=300)
 
 def start_phone_workflow():
     # Play the Dialtone sounds
-    off_hook_audio.play()
+    if GPIO.input(off_hook) == 0: # Check if the phone is still off the hook
+        off_hook_audio.play()
     # Wait for the user to dial a number
     time.sleep(2)
     off_hook_audio.stop() # For testing
     # Play the Ring Ring if phone is still off the hook
-    if phone_off_hook:
+    if GPIO.input(off_hook) == 0:
         ring_ring_audio.play()
     # Once this is done, then we play the dialed number audio
     # Monitor for Audio to finish
