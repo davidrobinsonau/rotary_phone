@@ -67,14 +67,6 @@ def off_hook_callback(GPIO_Channel, event, tick):
         print(GPIO_Channel, "Phone Handset has been picked up")
         phone_off_hook = True
         # start_phone_workflow()
-    if event == 1:
-        # 1 = change to high (a rising edge) which means the phone is on the hook ie placed back on the cradle
-        print(GPIO_Channel, "Phone Handset has been put down")
-        phone_off_hook = False
-        ring_ring_audio.stop()
-        off_hook_audio.stop()
-        # Reset pulse count to zero
-        pulse_count = 0
   
 def dial_monitor(GPIO_Channel, event, tick):
     '''
@@ -113,7 +105,11 @@ def start_phone_workflow():
     off_hook_audio.play()
     # Wait for the user to dial a number
     while pulse_count < 1:
-        # We play the dialtone until a number is dialed
+        # We play the dialtone until a number is dialed or handset put back
+        if pi.read(off_hook) == PI_HIGH:
+            print("Handset has been put down")
+            off_hook_audio.stop()
+            return
         time.sleep(0.3)
     off_hook_audio.stop() #  We need to wait for the number to be completed.
     # wait another two second for the dailer to finish before checking the number
@@ -131,7 +127,7 @@ def start_phone_workflow():
             print("Handset has been put down")
             ring_ring_audio.stop()
             off_hook_audio.stop()
-            break
+            return
         time.sleep(0.5)
     # Once the audio is done, we hang up the phone
     
