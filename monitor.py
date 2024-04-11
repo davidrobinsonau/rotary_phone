@@ -100,6 +100,8 @@ cb_counter_handler = pi.callback(dial_pulse, pigpio.RISING_EDGE, dial_monitor) #
 cb_off_hook_handler = pi.callback(off_hook, pigpio.FALLING_EDGE, off_hook_callback) # Set the callback for the off_hook PIN.
 
 def start_phone_workflow():
+    global pulse_count
+    global phone_off_hook
     # Play the Dialtone sounds
     off_hook_audio.play()
     # Wait for the user to dial a number
