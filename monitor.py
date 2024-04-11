@@ -129,7 +129,7 @@ print("Monitoring phone status...")
 while True:
     time.sleep(1)
     # As the off_hook_callback function isn't reliable due to the contacts on the phone being old, we need to check the status of the phone
-    print("State: Off-Hook: ",pi.read(off_hook), " Dial Pulse: ", pi.read(dial_pulse))
+    #print("State: Off-Hook: ",pi.read(off_hook), " Dial Pulse: ", pi.read(dial_pulse))
 
 
 
