@@ -15,6 +15,19 @@ pygame.init()
 # Load the Audio Files
 off_hook_audio = pygame.mixer.Sound("/home/davidrobinson/rotary_phone/dialtone.wav")
 ring_ring_audio = pygame.mixer.Sound("/home/davidrobinson/rotary_phone/ringringbetter.wav")
+# Array of the audio files for the numbers. Will copy from the repository to the boot directory
+audio_files = [
+    pygame.mixer.Sound("/boot/0.wav"),
+    pygame.mixer.Sound("/boot/1.wav"),
+    pygame.mixer.Sound("/boot/2.wav"),
+    pygame.mixer.Sound("/boot/3.wav"),
+    pygame.mixer.Sound("/boot/4.wav"),
+    pygame.mixer.Sound("/boot/5.wav"),
+    pygame.mixer.Sound("/boot/6.wav"),
+    pygame.mixer.Sound("/boot/7.wav"),
+    pygame.mixer.Sound("/boot/8.wav"),
+    pygame.mixer.Sound("/boot/9.wav"),
+]
 
 # GLobal State Variables
 phone_off_hook = False
@@ -38,8 +51,9 @@ def off_hook_callback(channel):
     if GPIO.input(off_hook) == 1:
         print(channel, "Event Phone is on the hook. Stopping Audio.")
         phone_off_hook = False
-        off_hook_audio.stop()
         ring_ring_audio.stop()
+        off_hook_audio.stop()
+  
         
 
 # Listen for the phone to be picked up
