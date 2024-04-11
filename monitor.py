@@ -105,20 +105,33 @@ pi.set_pull_up_down(dial_pulse, pigpio.PUD_UP) # Set the pull up resistor on the
 
 # 
 cb_counter_handler = pi.callback(dial_pulse, pigpio.EITHER_EDGE, dial_monitor) # Set the callback for the dial_pulse PIN
-cb_off_hook_handler = pi.callback(off_hook, pigpio.EITHER_EDGE, off_hook_callback) # Set the callback for the off_hook PIN
+# The off hook callback is unreliable due to the old contacts on the phone. Only checking pick up the pho. Volts to 0.
+cb_off_hook_handler = pi.callback(off_hook, pigpio.FALLING_EDGE, off_hook_callback) # Set the callback for the off_hook PIN
 
 def start_phone_workflow():
     # Play the Dialtone sounds
     off_hook_audio.play()
     # Wait for the user to dial a number
+    while pulse_count < 1:
+        # We play the dialtone until a number is dialed
+        time.sleep(0.3)
+    off_hook_audio.stop() #  We need to wait for the number to be completed.
+    # wait another two second for the dailer to finish before checking the number
     time.sleep(2)
-    off_hook_audio.stop() # For testing
-    # Play the Ring Ring if phone is still off the hook
+    # count the pulses to find the number
+    print("Number of pulses: ", pulse_count)
+
     if phone_off_hook == True:
         ring_ring_audio.play()
     # Once this is done, then we play the dialed number audio
     # Monitor for Audio to finish
     while pygame.mixer.get_busy():
+        # Check is handset has been put down
+        if pi.read(off_hook) == PI_HIGH:
+            print("Handset has been put down")
+            ring_ring_audio.stop()
+            off_hook_audio.stop()
+            break
         time.sleep(0.5)
     # Once the audio is done, we hang up the phone
     
