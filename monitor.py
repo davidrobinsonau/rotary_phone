@@ -44,11 +44,9 @@ phone_off_hook = False
 # Count the pulses
 pulse_count = 0
 
-#Raspberry Pi PINs used
-# RuntimeError: Failed to add edge detection when using GPIO 26 on Raspberry Pi 4
-off_hook = 25 # GPIO 26 PIN 37
-#off_hook = 35 # GPIO 19 PIN 35
-dial_pulse = 27 # GPIO 16 PIN 36 PIGIO uses the GPIO numbering
+# Define the GPIO PINs
+off_hook = 25 # GPIO 25 PIN 37 PIGIO uses the GPIO numbering
+dial_pulse = 27 # GPIO 27 PIN 36 PIGIO uses the GPIO numbering
 
 # Setup GPIO Board settings
 # GPIO.setwarnings(False)
