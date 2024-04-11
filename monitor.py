@@ -46,7 +46,7 @@ pulse_count = 0
 
 #Raspberry Pi PINs used
 # RuntimeError: Failed to add edge detection when using GPIO 26 on Raspberry Pi 4
-off_hook = 26 # GPIO 26 PIN 37
+off_hook = 25 # GPIO 26 PIN 37
 #off_hook = 35 # GPIO 19 PIN 35
 dial_pulse = 16 # GPIO 16 PIN 36 PIGIO uses the GPIO numbering
 
@@ -68,7 +68,7 @@ def off_hook_callback(GPIO_Channel, event, tick):
         #  = change to low (a falling edge) which means the phone is off the hook and in someones hand.
         print(GPIO_Channel, "Phone Handset has been picked up")
         phone_off_hook = True
-        start_phone_workflow()
+        # start_phone_workflow()
     if event == 1:
         # 1 = change to high (a rising edge) which means the phone is on the hook ie placed back on the cradle
         print(GPIO_Channel, "Phone Handset has been put down")
@@ -127,9 +127,11 @@ def start_phone_workflow():
 
 print("Monitoring phone status...")
 while True:
-    time.sleep(1)
+    time.sleep(0.5)
     # As the off_hook_callback function isn't reliable due to the contacts on the phone being old, we need to check the status of the phone
-    #print("State: Off-Hook: ",pi.read(off_hook), " Dial Pulse: ", pi.read(dial_pulse))
+    print("State: Off-Hook: ",pi.read(off_hook), " Dial Pulse: ", pi.read(dial_pulse))
+    if phone_off_hook:
+        start_phone_workflow()
 
 
 
