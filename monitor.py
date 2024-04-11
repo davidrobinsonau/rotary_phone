@@ -34,24 +34,22 @@ GPIO.setmode(GPIO.BOARD) # https://raspberrypi.stackexchange.com/questions/12966
 # Setup GPIO PINs
 GPIO.setup(off_hook, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 37 to input and pull up to 3.3V
 
-#def off_hook_callback(channel):
-#    if GPIO.input(off_hook) == 0:
-#       print(channel, "Event Phone is off the hook")
-#        off_hook_audio.play()
-#        phone_off_hook = True
-#    else:
-#        print(channel, "Event Phone is on the hook")
-#        off_hook_audio.stop()
-#        phone_off_hook = False
+def off_hook_callback(channel):
+    if GPIO.input(off_hook) == 1:
+        print(channel, "Event Phone is on the hook. Stopping Audio.")
+        off_hook_audio.stop()
+        ring_ring_audio.stop()
+        phone_off_hook = False
 
 # Listen for the phone to be picked up
-#GPIO.add_event_detect(off_hook, GPIO.BOTH, off_hook_callback, bouncetime=300)
+GPIO.add_event_detect(off_hook, GPIO.BOTH, off_hook_callback, bouncetime=300)
 
 def start_phone_workflow():
     # Play the Dialtone sounds
     off_hook_audio.play()
     # Wait for the user to dial a number
     time.sleep(2)
+    off_hook_audio.stop() # For testing
     # Play the Ring Ring if phone is still off the hook
     if phone_off_hook:
         ring_ring_audio.play()
