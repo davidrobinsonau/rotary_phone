@@ -82,7 +82,7 @@ def dial_monitor(GPIO_Channel, event, tick):
     '''
     global pulse_count
     pulse_count += 1
-    print(channel, pulse_count, " Dial Event Detected")
+    print(GPIO_Channel,event, tick , pulse_count, " Dial Event Detected")
 
 
 # Listen for the phone to be picked up
