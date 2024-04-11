@@ -45,8 +45,8 @@ phone_off_hook = False
 pulse_count = 0
 
 # Define the GPIO PINs
-off_hook = 25 # GPIO 25 PIN 37 PIGIO uses the GPIO numbering
-dial_pulse = 27 # GPIO 27 PIN 36 PIGIO uses the GPIO numbering
+off_hook = 26 # 
+dial_pulse = 16 # 
 
 # Setup GPIO Board settings
 # GPIO.setwarnings(False)
