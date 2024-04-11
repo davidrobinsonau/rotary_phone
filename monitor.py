@@ -13,8 +13,8 @@ from pygame.locals import *
 pygame.init()
 
 # Load the Audio Files
-off_hook_audio = pygame.mixer.Sound("dialtone.wav")
-ring_ring_audio = pygame.mixer.Sound("ringringbetter.wav")
+off_hook_audio = pygame.mixer.Sound("/home/davidrobinson/rotary_phone/dialtone.wav")
+ring_ring_audio = pygame.mixer.Sound("/home/davidrobinson/rotary_phone/ringringbetter.wav")
 
 # GLobal State Variables
 phone_off_hook = False
