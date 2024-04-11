@@ -61,13 +61,26 @@ GPIO.setup(off_hook, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 37 to input an
 GPIO.setup(dial_pulse, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 36 to input and pull up to 3.3V
 
 def off_hook_callback(channel):
+    global phone_off_hook
     if GPIO.input(off_hook) == 1:
         print(channel, "Event Phone is on the hook. Stopping Audio.")
         phone_off_hook = False
         ring_ring_audio.stop()
         off_hook_audio.stop()
   
-def dial_monitor(channel):
+def dial_monitor(GPIO_Channel, event, tick):
+    '''
+    The user supplied callback receives three parameters, the GPIO, the level, and the tick.
+    Parameter   Value    Meaning
+    GPIO        0-31     The GPIO which has changed state
+    level       0-2      0 = change to low (a falling edge)
+                         1 = change to high (a rising edge)
+                         2 = no level change (a watchdog timeout)
+    tick        32 bit   The number of microseconds since boot
+                         WARNING: this wraps around from
+                         4294967295 to 0 roughly every 72 minutes
+    '''
+    global pulse_count
     pulse_count += 1
     print(channel, pulse_count, " Dial Event Detected")
 
