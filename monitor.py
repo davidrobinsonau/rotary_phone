@@ -9,8 +9,17 @@ import time
 import sys
 import pygame
 from pygame.locals import *
+# Import the pigpio library for the rotary pulses. The standard GPIO Python library isn't fast enough to detect the pulses
+import pigpio
 
+PI_HIGH = 1
+PI_LOW = 0
+
+# Initialize the Pygame library
 pygame.init()
+
+# PiGPIO library instance, globally defined
+pi = pigpio.pi()
 
 # Load the Audio Files
 off_hook_audio = pygame.mixer.Sound("/home/davidrobinson/rotary_phone/dialtone.wav")
@@ -32,6 +41,8 @@ audio_files = [
 # GLobal State Variables
 phone_off_hook = False
 
+# Count the pulses
+pulse_count = 0
 
 #Raspberry Pi PINs used
 # RuntimeError: Failed to add edge detection when using GPIO 26 on Raspberry Pi 4
@@ -57,12 +68,16 @@ def off_hook_callback(channel):
         off_hook_audio.stop()
   
 def dial_monitor(channel):
-    print(channel, "Dial Event Detected")
+    pulse_count += 1
+    print(channel, pulse_count, " Dial Event Detected")
 
 
 # Listen for the phone to be picked up
 GPIO.add_event_detect(off_hook, GPIO.FALLING, off_hook_callback, bouncetime=300)
-GPIO.add_event_detect(dial_pulse, GPIO.FALLING, dial_monitor, bouncetime=300)
+#GPIO.add_event_detect(dial_pulse, GPIO.FALLING, dial_monitor, bouncetime=300) # This is disabled as the pulse is too fast for the GPIO library to detect
+pi.set_mode(dial_pulse, pigpio.INPUT)
+pi.set_pull_up_down(dial_pulse, pigpio.PUD_UP) # Set the pull up resistor on the dial_pulse PIN
+cb_counter_handler = pi.callback(dial_pulse, pigpio.EITHER_EDGE, dial_monitor) # Set the callback for the dial_pulse PIN
 
 def start_phone_workflow():
     # Play the Dialtone sounds
