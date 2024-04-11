@@ -69,7 +69,7 @@ def off_hook_callback(GPIO_Channel, event, tick):
         print(GPIO_Channel, "Phone Handset has been picked up")
         phone_off_hook = True
         start_phone_workflow()
-    if event == 0:
+    if event == 1:
         # 1 = change to high (a rising edge) which means the phone is on the hook ie placed back on the cradle
         print(GPIO_Channel, "Phone Handset has been put down")
         phone_off_hook = False
@@ -106,7 +106,7 @@ pi.set_mode(dial_pulse, pigpio.INPUT)
 pi.set_pull_up_down(dial_pulse, pigpio.PUD_UP) # Set the pull up resistor on the dial_pulse PIN
 
 # 
-cb_counter_handler = pi.callback(dial_pulse, pigpio.FALLING_EDGE, dial_monitor) # Set the callback for the dial_pulse PIN
+cb_counter_handler = pi.callback(dial_pulse, pigpio.EITHER_EDGE, dial_monitor) # Set the callback for the dial_pulse PIN
 cb_off_hook_handler = pi.callback(off_hook, pigpio.EITHER_EDGE, off_hook_callback) # Set the callback for the off_hook PIN
 
 def start_phone_workflow():
