@@ -157,7 +157,28 @@ def start_phone_workflow():
             off_hook_audio.stop()
             return
         time.sleep(0.5)
+
+    # Play the audio file for the number
+    audio_files[pulse_count].play()
+    # Monitor for Audio to finish
+    while pygame.mixer.get_busy():
+        # Check is handset has been put down
+        if pi.read(off_hook) == PI_HIGH:
+            print("Handset has been put down")
+            phone_off_hook = False
+            pulse_count = 0
+            ring_ring_audio.stop()
+            off_hook_audio.stop()
+            audio_files[pulse_count].stop()
+            return
+        time.sleep(0.5)
     # Once the audio is done, we hang up the phone
+    ring_ring_audio.stop()
+    off_hook_audio.stop()
+    audio_files[pulse_count].stop()
+    pulse_count = 0
+    phone_off_hook = False
+    print("Phone has been hung up")
 
 
 print("Monitoring phone status...")
