@@ -71,7 +71,7 @@ def off_hook_callback(GPIO_Channel, event, tick):
     global phone_off_hook
     global pulse_count
     # Check if the phone is off the hook or on the hook
-    if event == 0:
+    if event == 0 and phone_off_hook == False:
         #  = change to low (a falling edge) which means the phone is off the hook and in someones hand.
         print(GPIO_Channel, "Phone Handset has been picked up")
         phone_off_hook = True
