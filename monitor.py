@@ -92,8 +92,9 @@ def dial_monitor(GPIO_Channel, event, tick):
     """
     global pulse_count, last_tick
     # Check if the pulse is too fast
-    if tick - last_tick < 100000:  # 100ms
+    if tick - last_tick < 105000:  # 105ms
         return
+    last_tick = tick
     pulse_count += 1
     print(GPIO_Channel, event, tick, pulse_count, " Dial Event Detected")
 
