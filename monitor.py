@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
-
 # Called from .bashrc file
+# This script is used to monitor the phone status and dial pulses to play the audio files
+# The script will play the dialtone when the phone is picked up and then play the audio files for the numbers
 
-#import RPi.GPIO as GPIO  # Import the Raspberry Pi GPIO Library
+# TODO
+# 1. Add the ability to play the audio files for the numbers
+# 2. The Falling detecting is too sensative.. Need to add a debounce to the off_hook_callback or something.
+# 2024-04-11-17-52 Changed from 5 to 10 ms sample rate for daemon.
 
 import os
 import time
 import sys
 import pygame
 from pygame.locals import *
+
 # Import the pigpio library for the rotary pulses. The standard GPIO Python library isn't fast enough to detect the pulses
 import pigpio
 
@@ -23,7 +28,9 @@ pi = pigpio.pi()
 
 # Load the Audio Files
 off_hook_audio = pygame.mixer.Sound("/home/davidrobinson/rotary_phone/dialtone.wav")
-ring_ring_audio = pygame.mixer.Sound("/home/davidrobinson/rotary_phone/ringringbetter.wav")
+ring_ring_audio = pygame.mixer.Sound(
+    "/home/davidrobinson/rotary_phone/ringringbetter.wav"
+)
 # Array of the audio files for the numbers. Will copy from the repository to the boot directory
 audio_files = [
     pygame.mixer.Sound("/boot/0.wav"),
@@ -43,20 +50,22 @@ phone_off_hook = False
 
 # Count the pulses
 pulse_count = 0
+last_tick = 0  # The last time the pulse was detected
 
 # Define the GPIO PINs
-off_hook = 26 # 
-dial_pulse = 16 # 
+off_hook = 26  #
+dial_pulse = 16  #
 
 # Setup GPIO Board settings
 # GPIO.setwarnings(False)
 # Set the Mode to use the PIN numberings (NOT GPIO numberings)
-#GPIO.setmode(GPIO.BOARD) # https://raspberrypi.stackexchange.com/questions/12966/what-is-the-difference-between-board-and-bcm-for-gpio-pin-numbering
+# GPIO.setmode(GPIO.BOARD) # https://raspberrypi.stackexchange.com/questions/12966/what-is-the-difference-between-board-and-bcm-for-gpio-pin-numbering
 
 
 # Setup GPIO PINs
-#GPIO.setup(off_hook, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 37 to input and pull up to 3.3V
-#GPIO.setup(dial_pulse, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 36 to input and pull up to 3.3V
+# GPIO.setup(off_hook, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 37 to input and pull up to 3.3V
+# GPIO.setup(dial_pulse, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set PIN 36 to input and pull up to 3.3V
+
 
 def off_hook_callback(GPIO_Channel, event, tick):
     global phone_off_hook
@@ -67,9 +76,10 @@ def off_hook_callback(GPIO_Channel, event, tick):
         print(GPIO_Channel, "Phone Handset has been picked up")
         phone_off_hook = True
         # start_phone_workflow()
-  
+
+
 def dial_monitor(GPIO_Channel, event, tick):
-    '''
+    """
     The user supplied callback receives three parameters, the GPIO, the level, and the tick.
     Parameter   Value    Meaning
     GPIO        0-31     The GPIO which has changed state
@@ -79,25 +89,37 @@ def dial_monitor(GPIO_Channel, event, tick):
     tick        32 bit   The number of microseconds since boot
                          WARNING: this wraps around from
                          4294967295 to 0 roughly every 72 minutes
-    '''
-    global pulse_count
+    """
+    global pulse_count, last_tick
+    # Check if the pulse is too fast
+    if tick - last_tick < 100000:  # 100ms
+        return
     pulse_count += 1
-    print(GPIO_Channel,event, tick , pulse_count, " Dial Event Detected")
+    print(GPIO_Channel, event, tick, pulse_count, " Dial Event Detected")
 
 
 # Listen for the phone to be picked up
-#GPIO.add_event_detect(off_hook, GPIO.FALLING, off_hook_callback, bouncetime=300)
-#GPIO.add_event_detect(dial_pulse, GPIO.FALLING, dial_monitor, bouncetime=300) # This is disabled as the pulse is too fast for the GPIO library to detect
+# GPIO.add_event_detect(off_hook, GPIO.FALLING, off_hook_callback, bouncetime=300)
+# GPIO.add_event_detect(dial_pulse, GPIO.FALLING, dial_monitor, bouncetime=300) # This is disabled as the pulse is too fast for the GPIO library to detect
 
 pi.set_mode(off_hook, pigpio.INPUT)
-pi.set_pull_up_down(off_hook, pigpio.PUD_UP) # Set the pull up resistor on the off_hook PIN
+pi.set_pull_up_down(
+    off_hook, pigpio.PUD_UP
+)  # Set the pull up resistor on the off_hook PIN
 
 pi.set_mode(dial_pulse, pigpio.INPUT)
-pi.set_pull_up_down(dial_pulse, pigpio.PUD_UP) # Set the pull up resistor on the dial_pulse PIN
-# 
-cb_counter_handler = pi.callback(dial_pulse, pigpio.FALLING_EDGE, dial_monitor) # Set the callback for the dial_pulse PIN.
+pi.set_pull_up_down(
+    dial_pulse, pigpio.PUD_UP
+)  # Set the pull up resistor on the dial_pulse PIN
+#
+cb_counter_handler = pi.callback(
+    dial_pulse, pigpio.FALLING_EDGE, dial_monitor
+)  # Set the callback for the dial_pulse PIN.
 # The off hook callback is unreliable due to the old contacts on the phone. Only checking pick up the pho. Volts to 0.
-cb_off_hook_handler = pi.callback(off_hook, pigpio.FALLING_EDGE, off_hook_callback) # Set the callback for the off_hook PIN.
+cb_off_hook_handler = pi.callback(
+    off_hook, pigpio.FALLING_EDGE, off_hook_callback
+)  # Set the callback for the off_hook PIN.
+
 
 def start_phone_workflow():
     global pulse_count
@@ -114,7 +136,7 @@ def start_phone_workflow():
             off_hook_audio.stop()
             return
         time.sleep(0.3)
-    off_hook_audio.stop() #  We need to wait for the number to be completed.
+    off_hook_audio.stop()  #  We need to wait for the number to be completed.
     # wait another two second for the dailer to finish before checking the number
     time.sleep(2)
     # count the pulses to find the number
@@ -135,16 +157,15 @@ def start_phone_workflow():
             return
         time.sleep(0.5)
     # Once the audio is done, we hang up the phone
-    
+
 
 print("Monitoring phone status...")
 while True:
     time.sleep(0.5)
     # As the off_hook_callback function isn't reliable due to the contacts on the phone being old, we need to check the status of the phone
-    print("State: Off-Hook: ",pi.read(off_hook), " Dial Pulse: ", pi.read(dial_pulse))
+    print("State: Off-Hook: ", pi.read(off_hook), " Dial Pulse: ", pi.read(dial_pulse))
     if phone_off_hook:
         start_phone_workflow()
-
 
 
 # Clean up the GPIO settings when the script is stopped
