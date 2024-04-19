@@ -33,6 +33,7 @@ ring_ring_audio = pygame.mixer.Sound(
 )
 # Array of the audio files for the numbers. Will copy from the repository to the boot directory
 audio_files = [
+    1,  # THIS IS A PLACEHOLDER
     pygame.mixer.Sound("/boot/0.wav"),
     pygame.mixer.Sound("/boot/1.wav"),
     pygame.mixer.Sound("/boot/2.wav"),
