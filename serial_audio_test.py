@@ -44,3 +44,7 @@ def main():
 
     # Close the serial port
     ser.close()
+
+
+if __name__ == "__main__":
+    main()
