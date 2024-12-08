@@ -11,6 +11,7 @@ AT_END = "\r\n"
 
 import sys
 import os
+import time
 
 import serial
 
@@ -21,18 +22,25 @@ def main():
 
     # Send the AT command to initialize the DF Player Pro
     ser.write(AT_INIT.encode() + AT_END.encode())
+    # wait for the response from the DF Player Pro
     print(f"Sent: {AT_INIT}")
+    # sleep for 1 second to allow the DF Player Pro to respond
+    time.sleep(1)
     print(f"Received: {ser.readline().decode()}")
 
     # Send the AT command to set the volume
     ser.write(AT_VOL.encode() + AT_END.encode())
+    time.sleep(1)
+
     print(f"Sent: {AT_VOL}")
     print(f"Received: {ser.readline().decode()}")
 
     # Send the AT command to play the file
     ser.write(AT_PLAY.encode() + "0.WAV".encode() + AT_END.encode())
+    time.sleep(1)
     print(f"Sent: {AT_PLAY}0.WAV")
     print(f"Received: {ser.readline().decode()}")
+    time.sleep(5)
 
     # Close the serial port
     ser.close()
