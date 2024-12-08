@@ -36,9 +36,9 @@ def main():
     print(f"Received: {ser.readline().decode()}")
 
     # Send the AT command to play the file
-    ser.write(AT_PLAY.encode() + "1.WAV".encode() + AT_END.encode())
+    ser.write(AT_PLAY.encode() + "1.wav".encode() + AT_END.encode())
     time.sleep(1)
-    print(f"Sent: {AT_PLAY}1.WAV")
+    print(f"Sent: {AT_PLAY}1.wav")
     print(f"Received: {ser.readline().decode()}")
     time.sleep(5)
 
