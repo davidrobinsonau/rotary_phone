@@ -118,7 +118,11 @@ cb_off_hook_handler = pi.callback(
 # Main Loop
 try:
     while True:
-        time.sleep(1)
+        if pi.read(GPIO_Handset) == PI_HIGH:
+            print("Handset has been put down")
+            phone_off_hook = False
+            pulse_count = 0
+        time.sleep(0.2)
 
 # Not sure we will get here, but to be safe:
 # Close the serial port
