@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Called from .bashrc file
-# This script is used to monitor the phone status and dial pulses to play the audio files through the DF Player Pro board
+# This script is used to monitor the phone status and dial pulses to play the audio files through the DF Player Pro board and speaker.
+# https://wiki.dfrobot.com/DFPlayer_PRO_SKU_DFR0768
 # The script will play the dialtone when the phone is picked up and then play the audio files for the number dialed.
 
 # This is version 2 of the script, using the DF Player Pro and a Raspberry Pi Zero 2 W to monitor the dialing mechanism.
@@ -73,6 +74,13 @@ def play_audio(file_number):
     # Send the AT command to play the dialed number
     audio_serial.write(f"AT+PLAYFILE=/{file_number}.wav\r\n".encode())
     print(f"Sent: AT+PLAYFILE=/{file_number}.wav")
+
+
+def stop_audio():
+    global audio_serial
+    audio_serial.write("AT+PLAY=PP\r\n".encode())
+    print(f"Sent: AT+PLAY=PP")
+    print(f"Received: {audio_serial.readline().decode()}")
 
 
 def off_hook_callback(GPIO_Channel, event, tick):
