@@ -85,6 +85,7 @@ def off_hook_callback(GPIO_Channel, event, tick):
         phone_off_hook = True
         # start_phone_workflow()
 
+
 def dial_monitor(GPIO_Channel, event, tick):
     """
     The user supplied callback receives three parameters, the GPIO, the level, and the tick.
@@ -105,6 +106,7 @@ def dial_monitor(GPIO_Channel, event, tick):
     pulse_count += 1
     print(GPIO_Channel, event, tick, pulse_count, " Dial Event Detected")
 
+
 cb_counter_handler = pi.callback(
     GPIO_Dial, pigpio.FALLING_EDGE, dial_monitor
 )  # Set the callback for the dial_pulse PIN.
@@ -120,4 +122,10 @@ try:
 
 # Not sure we will get here, but to be safe:
 # Close the serial port
-audio_serial.close()
+finally:
+    audio_serial.close()
+    pi.stop()
+    print("Serial Port Closed")
+    print("PiGPIO Stopped")
+    print("Exiting")
+    exit(0)
