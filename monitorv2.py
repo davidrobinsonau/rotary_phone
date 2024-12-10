@@ -76,6 +76,13 @@ def play_audio(file_number):
     print(f"Sent: AT+PLAYFILE=/{file_number}.wav")
 
 
+def play_dialtone():
+    global audio_serial
+    # Start by playing the dialtone
+    audio_serial.write("AT+PLAYFILE=/dialtone.wav\r\n".encode())
+    print(f"Received: {audio_serial.readline().decode()}")
+
+
 def stop_audio():
     global audio_serial
     # This won't work as I don't know if the audio is playing or not. Need to add silence.wav
@@ -91,6 +98,7 @@ def off_hook_callback(GPIO_Channel, event, tick):
     if event == 0 and phone_off_hook == False:
         #  = change to low (a falling edge) which means the phone is off the hook and in someones hand.
         print(GPIO_Channel, "Phone Handset has been picked up")
+        play_dialtone()
         phone_off_hook = True
         # start_phone_workflow()
 
