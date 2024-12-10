@@ -5,7 +5,7 @@ SERIAL_PORT = "/dev/ttyS0"
 BAUD_RATE = 115200
 
 AT_INIT = "AT+PLAYMODE=3"  # play one song and pause
-AT_PLAY = "AT+PLAYFILE="  # Append the filename ie 0.WAV
+AT_PLAY = "AT+PLAYFILE=/"  # Append the filename ie 0.WAV in the root folder. Must have a / before the filename
 AT_VOL = "AT+VOL=5"  # Set the volume to 5
 AT_END = "\r\n"
 
@@ -36,7 +36,7 @@ def main():
     print(f"Received: {ser.readline().decode()}")
 
     # Send the AT command to play the file
-    ser.write(AT_PLAY.encode() + "/1.wav".encode() + AT_END.encode())
+    ser.write(AT_PLAY.encode() + "1.wav".encode() + AT_END.encode())
     time.sleep(1)
     print(f"Sent: {AT_PLAY}1.wav")
     print(f"Received: {ser.readline().decode()}")
