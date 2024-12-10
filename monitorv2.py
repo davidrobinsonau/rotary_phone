@@ -78,6 +78,7 @@ def play_audio(file_number):
 
 def stop_audio():
     global audio_serial
+    # This won't work as I don't know if the audio is playing or not. Need to add silence.wav
     audio_serial.write("AT+PLAY=PP\r\n".encode())
     print(f"Sent: AT+PLAY=PP")
     print(f"Received: {audio_serial.readline().decode()}")
