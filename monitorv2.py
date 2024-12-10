@@ -128,6 +128,7 @@ try:
     while True:
         if phone_off_hook == True and pi.read(GPIO_Handset) == PI_HIGH:
             print("Handset has been put down")
+            stop_audio()
             phone_off_hook = False
             pulse_count = 0
         time.sleep(0.2)
