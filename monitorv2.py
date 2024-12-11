@@ -115,7 +115,10 @@ def dial_monitor(GPIO_Channel, event, tick):
                          WARNING: this wraps around from
                          4294967295 to 0 roughly every 72 minutes
     """
-    global pulse_count, last_tick
+    global pulse_count, last_tick, phone_off_hook
+    # We only care about the pulses when the phone is off the hook.
+    if phone_off_hook == False:
+        return
     # Check if the pulse is too fast
     if tick - last_tick < 105000:  # 105ms
         return
@@ -135,11 +138,25 @@ cb_off_hook_handler = pi.callback(
 # Main Loop
 try:
     while True:
+        if phone_off_hook == False and pi.read(GPIO_Handset) == PI_LOW:
+            # Althought this should have been detected from the event handler, we double check here.
+            print("Handset has been picked up")
+            phone_off_hook = True
+            play_dialtone()
         if phone_off_hook == True and pi.read(GPIO_Handset) == PI_HIGH:
             print("Handset has been put down")
             stop_audio()
             phone_off_hook = False
             pulse_count = 0
+        elif phone_off_hook == True:
+            # Phone is off hook, dialtone is playing, listen for the pulses, but we need to wait for the pulses to stop before playing the audio
+
+            # Check if the pulse count is greater than 0
+            if pulse_count > 0 and last_tick - time.time() > 0.5:
+                print(f"Pulse Count: {pulse_count}")
+                # Play the audio file for the number dialed
+                play_audio(pulse_count)
+                pulse_count = 0
         time.sleep(0.2)
 
 # Not sure we will get here, but to be safe:
