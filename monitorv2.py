@@ -152,8 +152,8 @@ try:
             # Phone is off hook, dialtone is playing, listen for the pulses, but we need to wait for the pulses to stop before playing the audio
 
             # Check if the pulse count is greater than 0
-            if pulse_count > 0 and last_tick - time.time() > 1:
-                print(f"Pulse Count: {pulse_count}")
+            if pulse_count > 0 and time.time() - last_tick > 2:
+                print(f"Pulse Count: {pulse_count} : Time: {time.time() - last_tick}")
                 # Play the audio file for the number dialed
                 play_audio(pulse_count)
                 pulse_count = 0
