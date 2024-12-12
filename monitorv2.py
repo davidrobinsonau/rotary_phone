@@ -86,8 +86,9 @@ def play_dialtone():
 def stop_audio():
     global audio_serial
     # This won't work as I don't know if the audio is playing or not. Need to add silence.wav
-    audio_serial.write("AT+PLAY=PP\r\n".encode())
-    print(f"Sent: AT+PLAY=PP")
+    # audio_serial.write("AT+PLAY=PP\r\n".encode())
+    audio_serial.write("AT+PLAYFILE=/silence.wav\r\n".encode())
+    print(f"Sent: AT+PLAYFILE=/silence.wav")
     print(f"Received: {audio_serial.readline().decode()}")
 
 
