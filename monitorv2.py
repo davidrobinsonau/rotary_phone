@@ -6,6 +6,10 @@
 
 # This is version 2 of the script, using the DF Player Pro and a Raspberry Pi Zero 2 W to monitor the dialing mechanism.
 
+# Lessons learned:
+# If the file doesn't exist on the DF Player Pro, it will play the first file in the sequence and still return "OK".
+# The Play=PP has two functions based on current audio state, which means it will start audio if the audio is stopped.
+
 # Switch to detach that the handset is lifted. GPIO 21
 GPIO_Handset = 21
 
