@@ -69,9 +69,9 @@ print(f"Received: {audio_serial.readline().decode()}")
 # Function to play the audio file. The audio file is passed as a parameter, 0-9 for the numbers
 def play_audio(file_number):
     global audio_serial
-    print(f"Sent: AT+PLAYFILE=/ringringbetter.wav")
+    print(f"Sent: AT+PLAYFILE=/ringring.wav")
     # Start by playing the ringtone
-    audio_serial.write("AT+PLAYFILE=/ringringbetter.wav\r\n".encode())
+    audio_serial.write("AT+PLAYFILE=/ringring.wav\r\n".encode())
     time.sleep(4)
     print(f"Received: {audio_serial.readline().decode()}")
     # Send the AT command to play the dialed number
