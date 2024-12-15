@@ -9,6 +9,7 @@
 # Lessons learned:
 # If the file doesn't exist on the DF Player Pro, it will play the first file in the sequence and still return "OK".
 # The Play=PP has two functions based on current audio state, which means it will start audio if the audio is stopped.
+# It appears the file manager on the DF Player Pro doesnt like more than 8 letters in the filename. Seems to start with the first file in the sequence instead.
 
 # Switch to detach that the handset is lifted. GPIO 21
 GPIO_Handset = 21
@@ -155,15 +156,19 @@ try:
             pulse_count = 0
         elif phone_off_hook == True:
             # Phone is off hook, dialtone is playing, listen for the pulses, but we need to wait for the pulses to stop before playing the audio
-
             # Check if the pulse count is greater than 0
             if pulse_count > 0:
                 # Sleep for 2 seconds to let pulse count finish
                 time.sleep(2)
                 print(f"Pulse Count: {pulse_count}")
                 # Play the audio file for the number dialed
-                play_audio(pulse_count)
+                if pulse_count >= 10:
+                    # Technically 10 is 0 on the dial. We will play the 0.wav file
+                    play_audio(0)
+                else:
+                    play_audio(pulse_count)
                 pulse_count = 0
+            # We don't hang up like a real phone, this means the user can dial another number without hanging up.
         time.sleep(0.2)
 
 # Not sure we will get here, but to be safe:
