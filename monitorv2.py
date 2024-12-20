@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 -u
 # Called from .bashrc file
 # This script is used to monitor the phone status and dial pulses to play the audio files through the DF Player Pro board and speaker.
 # https://wiki.dfrobot.com/DFPlayer_PRO_SKU_DFR0768
@@ -169,6 +169,7 @@ try:
                     play_audio(pulse_count)
                 pulse_count = 0
             # We don't hang up like a real phone, this means the user can dial another number without hanging up.
+        #
         time.sleep(0.2)
 
 # Not sure we will get here, but to be safe:
