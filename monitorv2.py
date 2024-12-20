@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 -u
+#!/usr/bin/env -S python3 -u
 # Called from .bashrc file
 # This script is used to monitor the phone status and dial pulses to play the audio files through the DF Player Pro board and speaker.
 # https://wiki.dfrobot.com/DFPlayer_PRO_SKU_DFR0768
