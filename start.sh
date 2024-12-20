@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# Check that we are being run on the tty console
+if [ $(tty) != "/dev/tty1" ]; then
+    echo "Skipping startup script because we are not on tty1"
+    exit 1
+fi
+
+
 # This script will start the Python script and restart it if it crashes
 cd /home/phone/rotary_phone
 # Move the log file so that we don't fill up all space.
