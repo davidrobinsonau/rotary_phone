@@ -76,8 +76,8 @@ def play_audio(file_number):
     time.sleep(4)
     print(f"Received: {audio_serial.readline().decode()}")
     # Send the AT command to play the dialed number
-    audio_serial.write(f"AT+PLAYFILE=/{file_number}.wav\r\n".encode())
-    print(f"Sent: AT+PLAYFILE=/{file_number}.wav")
+    audio_serial.write(f"AT+PLAYFILE=/{file_number}.mp3\r\n".encode())
+    print(f"Sent: AT+PLAYFILE=/{file_number}.mp3")
     print(f"Received: {audio_serial.readline().decode()}")
 
 
@@ -100,12 +100,15 @@ def stop_audio():
 def off_hook_callback(GPIO_Channel, event, tick):
     global phone_off_hook
     global pulse_count
+    global last_tick
     # Check if the phone is off the hook or on the hook
     if event == 0 and phone_off_hook == False:
         #  = change to low (a falling edge) which means the phone is off the hook and in someones hand.
         print(GPIO_Channel, "Phone Handset has been picked up")
         play_dialtone()
         phone_off_hook = True
+        # Reset last_tick to get around the 72 minute count reset.
+        last_tick = 0
         # start_phone_workflow()
 
 
@@ -120,6 +123,7 @@ def dial_monitor(GPIO_Channel, event, tick):
     tick        32 bit   The number of microseconds since boot
                          WARNING: this wraps around from
                          4294967295 to 0 roughly every 72 minutes
+                         DOUBLE WARNING: If you are using this as a reference, it will stop working when last_tick is lower than last number dialed.
     """
     global pulse_count, last_tick, phone_off_hook
     # We only care about the pulses when the phone is off the hook.
@@ -148,6 +152,8 @@ try:
             # Althought this should have been detected from the event handler, we double check here.
             print("Handset has been picked up")
             phone_off_hook = True
+            # Reset last_tick to get around the 72 minute count reset.
+            last_tick = 0
             play_dialtone()
         if phone_off_hook == True and pi.read(GPIO_Handset) == PI_HIGH:
             print("Handset has been put down")

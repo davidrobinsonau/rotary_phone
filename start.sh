@@ -17,6 +17,7 @@ mv log.txt log_1.txt
 # Start the script
 
 while true; do
-    /home/phone/rotary_phone/monitorv2.py >> log.txt 2>&1
+    # Tee is used to output to the terminal and to a file
+    /home/phone/rotary_phone/monitorv2.py 2>&1 | tee -a log.txt
     sleep 10
 done
